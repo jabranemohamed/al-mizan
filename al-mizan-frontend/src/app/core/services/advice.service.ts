@@ -14,9 +14,11 @@ export class AdviceService {
 
   constructor(private http: HttpClient) {}
 
-  loadTodayAdvice(): Observable<AiAdvice> {
+  loadTodayAdvice(lang: string = 'fr'): Observable<AiAdvice> {
     this.loading.set(true);
-    return this.http.get<AiAdvice>(`${this.apiUrl}/today`).pipe(
+    return this.http.get<AiAdvice>(`${this.apiUrl}/today`, {
+      params: { lang }
+    }).pipe(
       tap(advice => {
         this.advice.set(advice);
         this.loading.set(false);

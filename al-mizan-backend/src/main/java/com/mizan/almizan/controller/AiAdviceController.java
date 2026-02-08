@@ -24,12 +24,14 @@ public class AiAdviceController {
     private final UserRepository userRepository;
 
     @GetMapping("/today")
-    public ResponseEntity<AiAdviceDTO> getTodayAdvice(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<AiAdviceDTO> getTodayAdvice(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "fr") String lang) {
         AppUser user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         BalanceDTO balance = balanceService.getBalance(user.getId(), LocalDate.now());
-        AiAdviceDTO advice = aiAdviceService.generateAdvice(balance);
+        AiAdviceDTO advice = aiAdviceService.generateAdvice(balance, lang);
         return ResponseEntity.ok(advice);
     }
 }

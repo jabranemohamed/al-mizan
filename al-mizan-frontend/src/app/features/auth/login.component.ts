@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-login',
@@ -12,21 +13,21 @@ import { AuthService } from '@core/services/auth.service';
       <div class="auth-card card">
         <div class="auth-header">
           <span class="bismillah">﷽</span>
-          <h2>Connexion</h2>
-          <p class="text-dim">Accède à ta balance des actions</p>
+          <h2>{{ lang.t('login.title') }}</h2>
+          <p class="text-dim">{{ lang.t('login.subtitle') }}</p>
         </div>
 
         <form (ngSubmit)="onLogin()" class="auth-form">
           <div class="form-group">
-            <label for="username">Nom d'utilisateur</label>
+            <label for="username">{{ lang.t('login.username') }}</label>
             <input id="username" type="text" [(ngModel)]="username" name="username"
-                   placeholder="Ton pseudo" required autofocus>
+                   [placeholder]="lang.t('login.usernamePlaceholder')" required autofocus>
           </div>
 
           <div class="form-group">
-            <label for="password">Mot de passe</label>
+            <label for="password">{{ lang.t('login.password') }}</label>
             <input id="password" type="password" [(ngModel)]="password" name="password"
-                   placeholder="Ton mot de passe" required>
+                   [placeholder]="lang.t('login.passwordPlaceholder')" required>
           </div>
 
           @if (error()) {
@@ -35,16 +36,16 @@ import { AuthService } from '@core/services/auth.service';
 
           <button type="submit" class="btn btn-primary full-width" [disabled]="loading()">
             @if (loading()) {
-              <i class="ri-loader-4-line spin"></i> Connexion...
+              <i class="ri-loader-4-line spin"></i> {{ lang.t('login.loading') }}
             } @else {
-              <i class="ri-login-box-line"></i> Se connecter
+              <i class="ri-login-box-line"></i> {{ lang.t('login.submit') }}
             }
           </button>
         </form>
 
         <p class="auth-footer">
-          Pas encore de compte ?
-          <a routerLink="/auth/register">Créer un compte</a>
+          {{ lang.t('login.noAccount') }}
+          <a routerLink="/auth/register">{{ lang.t('login.createAccount') }}</a>
         </p>
       </div>
     </div>
@@ -116,6 +117,7 @@ import { AuthService } from '@core/services/auth.service';
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  readonly lang = inject(LanguageService);
 
   username = '';
   password = '';
@@ -133,7 +135,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.error || 'Identifiants incorrects');
+        this.error.set(err.error?.error || this.lang.t('login.error'));
       }
     });
   }

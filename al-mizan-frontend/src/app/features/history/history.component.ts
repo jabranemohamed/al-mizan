@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@ang
 import { DatePipe } from '@angular/common';
 import { BalanceService } from '@core/services/balance.service';
 import { Balance } from '@core/models/models';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-history',
@@ -11,33 +12,33 @@ import { Balance } from '@core/models/models';
   template: `
     <div class="history-page container animate-fade-in">
       <header class="page-header">
-        <h1><i class="ri-calendar-line"></i> Historique</h1>
-        <p class="text-dim">Suivi de ta balance sur les 30 derniers jours</p>
+        <h1><i class="ri-calendar-line"></i> {{ lang.t('history.title') }}</h1>
+        <p class="text-dim">{{ lang.t('history.subtitle') }}</p>
       </header>
 
       @if (loading()) {
         <div class="loading">
-          <i class="ri-loader-4-line spin"></i> Chargement...
+          <i class="ri-loader-4-line spin"></i> {{ lang.t('history.loading') }}
         </div>
       } @else if (balanceService.history().length === 0) {
         <div class="empty-state card">
           <i class="ri-calendar-todo-line"></i>
-          <p>Aucun historique pour le moment. Commence par cocher tes actions du jour !</p>
+          <p>{{ lang.t('history.empty') }}</p>
         </div>
       } @else {
         <!-- Stats summary -->
         <div class="stats-grid">
           <div class="stat-card card">
             <div class="stat-value text-green">{{ positiveDays() }}</div>
-            <div class="stat-label">Jours positifs</div>
+            <div class="stat-label">{{ lang.t('history.positiveDays') }}</div>
           </div>
           <div class="stat-card card">
             <div class="stat-value text-red">{{ negativeDays() }}</div>
-            <div class="stat-label">Jours négatifs</div>
+            <div class="stat-label">{{ lang.t('history.negativeDays') }}</div>
           </div>
           <div class="stat-card card">
             <div class="stat-value text-gold">{{ neutralDays() }}</div>
-            <div class="stat-label">Jours neutres</div>
+            <div class="stat-label">{{ lang.t('history.neutralDays') }}</div>
           </div>
         </div>
 
@@ -46,8 +47,8 @@ import { Balance } from '@core/models/models';
           @for (day of balanceService.history(); track day.date; let i = $index) {
             <div class="history-item card" [style.animation-delay]="i * 50 + 'ms'">
               <div class="day-date">
-                <span class="day-name">{{ day.date | date:'EEE' }}</span>
-                <span class="day-number">{{ day.date | date:'d MMM' }}</span>
+                <span class="day-name">{{ day.date | date:'EEE':'':lang.currentLang() }}</span>
+                <span class="day-number">{{ day.date | date:'d MMM':'':lang.currentLang() }}</span>
               </div>
 
               <div class="day-bar">
@@ -56,8 +57,8 @@ import { Balance } from '@core/models/models';
               </div>
 
               <div class="day-scores">
-                <span class="score-bad">{{ day.badCount }} <small>سيئات</small></span>
-                <span class="score-good">{{ day.goodCount }} <small>حسنات</small></span>
+                <span class="score-bad">{{ day.badCount }} <small>{{ lang.t('history.badLabel') }}</small></span>
+                <span class="score-good">{{ day.goodCount }} <small>{{ lang.t('history.goodLabel') }}</small></span>
               </div>
 
               <div class="day-verdict" [class]="day.verdict.toLowerCase()">
@@ -209,6 +210,7 @@ import { Balance } from '@core/models/models';
 })
 export class HistoryComponent implements OnInit {
   readonly balanceService = inject(BalanceService);
+  readonly lang = inject(LanguageService);
   loading = signal(true);
 
   positiveDays = signal(0);

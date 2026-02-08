@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { AdviceService } from '@core/services/advice.service';
 import { BalanceService } from '@core/services/balance.service';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-advice',
@@ -9,19 +10,19 @@ import { BalanceService } from '@core/services/balance.service';
   template: `
     <div class="advice-page container animate-fade-in">
       <header class="page-header">
-        <h1><i class="ri-sparkling-2-line"></i> Conseil du jour</h1>
-        <p class="text-dim">Un conseil personnalisé basé sur ta balance du jour</p>
+        <h1><i class="ri-sparkling-2-line"></i> {{ lang.t('advice.title') }}</h1>
+        <p class="text-dim">{{ lang.t('advice.subtitle') }}</p>
       </header>
 
       <!-- Balance summary -->
       <div class="balance-summary card">
         <div class="summary-item">
-          <span class="label">حسنات</span>
+          <span class="label">{{ lang.t('balance.goodLabel') }}</span>
           <span class="value text-green">{{ balanceService.todayBalance().goodCount }}</span>
         </div>
         <div class="summary-divider">⚖</div>
         <div class="summary-item">
-          <span class="label">سيئات</span>
+          <span class="label">{{ lang.t('balance.badLabel') }}</span>
           <span class="value text-red">{{ balanceService.todayBalance().badCount }}</span>
         </div>
       </div>
@@ -31,25 +32,25 @@ import { BalanceService } from '@core/services/balance.service';
           <div class="loading-spinner">
             <i class="ri-sparkling-2-line pulse"></i>
           </div>
-          <p>L'IA réfléchit à ton conseil...</p>
+          <p>{{ lang.t('advice.loading') }}</p>
         </div>
       } @else if (adviceService.advice()) {
         <div class="advice-card card animate-slide-up">
           <div class="advice-section">
-            <h3><i class="ri-chat-heart-line"></i> Conseil</h3>
+            <h3><i class="ri-chat-heart-line"></i> {{ lang.t('advice.sectionAdvice') }}</h3>
             <p class="advice-text">{{ adviceService.advice()!.advice }}</p>
           </div>
 
           @if (adviceService.advice()!.encouragement) {
             <div class="advice-section arabic-section">
-              <h3><i class="ri-hearts-line"></i> دعاء</h3>
+              <h3><i class="ri-hearts-line"></i> {{ lang.t('advice.sectionDua') }}</h3>
               <p class="arabic-text">{{ adviceService.advice()!.encouragement }}</p>
             </div>
           }
 
           @if (adviceService.advice()!.hadithReference) {
             <div class="advice-section hadith-section">
-              <h3><i class="ri-book-open-line"></i> Référence</h3>
+              <h3><i class="ri-book-open-line"></i> {{ lang.t('advice.sectionRef') }}</h3>
               <p class="hadith-text">{{ adviceService.advice()!.hadithReference }}</p>
             </div>
           }
@@ -57,14 +58,14 @@ import { BalanceService } from '@core/services/balance.service';
       } @else {
         <div class="empty-state card">
           <i class="ri-sparkling-2-line"></i>
-          <p>Clique ci-dessous pour recevoir ton conseil personnalisé</p>
+          <p>{{ lang.t('advice.empty') }}</p>
         </div>
       }
 
       <div class="action-bar">
         <button class="btn btn-primary" (click)="loadAdvice()" [disabled]="adviceService.loading()">
           <i class="ri-refresh-line"></i>
-          {{ adviceService.advice() ? 'Nouveau conseil' : 'Obtenir un conseil' }}
+          {{ adviceService.advice() ? lang.t('advice.newAdvice') : lang.t('advice.getAdvice') }}
         </button>
       </div>
     </div>
@@ -196,12 +197,13 @@ import { BalanceService } from '@core/services/balance.service';
 export class AdviceComponent implements OnInit {
   readonly adviceService = inject(AdviceService);
   readonly balanceService = inject(BalanceService);
+  readonly lang = inject(LanguageService);
 
   ngOnInit(): void {
     this.balanceService.loadTodayBalance().subscribe();
   }
 
   loadAdvice(): void {
-    this.adviceService.loadTodayAdvice().subscribe();
+    this.adviceService.loadTodayAdvice(this.lang.currentLang()).subscribe();
   }
 }

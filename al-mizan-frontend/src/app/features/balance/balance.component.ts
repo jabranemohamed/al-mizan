@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } 
 import { ActionService } from '@core/services/action.service';
 import { BalanceService } from '@core/services/balance.service';
 import { Action } from '@core/models/models';
+import { LanguageService } from '@core/i18n/language.service';
 import { ScaleComponent } from './scale.component';
 import { ArcActionsComponent } from './arc-actions.component';
 
@@ -16,15 +17,15 @@ import { ArcActionsComponent } from './arc-actions.component';
       <header class="page-header animate-fade-in">
         <div class="bismillah">﷽</div>
         <h1>الميزان</h1>
-        <p class="subtitle">Pèse tes actions du jour</p>
+        <p class="subtitle">{{ lang.t('balance.subtitle') }}</p>
       </header>
 
       <!-- Score boxes -->
       <div class="scores animate-fade-in">
         <div class="score-box bad">
-          <div class="score-label">سيئات</div>
+          <div class="score-label">{{ lang.t('balance.badLabel') }}</div>
           <div class="score-value">{{ balance.todayBalance().badCount }}</div>
-          <div class="score-weight">poids: {{ balance.todayBalance().badWeight }}</div>
+          <div class="score-weight">{{ lang.t('balance.weight') }} {{ balance.todayBalance().badWeight }}</div>
         </div>
         <div class="score-box verdict" [class]="balance.todayBalance().verdict.toLowerCase()">
           <div class="verdict-icon">
@@ -36,16 +37,16 @@ import { ArcActionsComponent } from './arc-actions.component';
           </div>
           <div class="verdict-text">
             @switch (balance.todayBalance().verdict) {
-              @case ('POSITIVE') { حسناتك أثقل }
-              @case ('NEGATIVE') { سيئاتك أثقل }
-              @default { تعادل }
+              @case ('POSITIVE') { {{ lang.t('balance.positive') }} }
+              @case ('NEGATIVE') { {{ lang.t('balance.negative') }} }
+              @default { {{ lang.t('balance.neutral') }} }
             }
           </div>
         </div>
         <div class="score-box good">
-          <div class="score-label">حسنات</div>
+          <div class="score-label">{{ lang.t('balance.goodLabel') }}</div>
           <div class="score-value">{{ balance.todayBalance().goodCount }}</div>
-          <div class="score-weight">poids: {{ balance.todayBalance().goodWeight }}</div>
+          <div class="score-weight">{{ lang.t('balance.weight') }} {{ balance.todayBalance().goodWeight }}</div>
         </div>
       </div>
 
@@ -65,7 +66,7 @@ import { ArcActionsComponent } from './arc-actions.component';
       <!-- Reset -->
       <div class="actions-bar">
         <button class="btn btn-outline" (click)="reload()">
-          <i class="ri-refresh-line"></i> Recharger
+          <i class="ri-refresh-line"></i> {{ lang.t('balance.reload') }}
         </button>
       </div>
     </div>
@@ -181,6 +182,7 @@ import { ArcActionsComponent } from './arc-actions.component';
 export class BalanceComponent implements OnInit {
   readonly actions = inject(ActionService);
   readonly balance = inject(BalanceService);
+  readonly lang = inject(LanguageService);
 
   ngOnInit(): void {
     this.reload();

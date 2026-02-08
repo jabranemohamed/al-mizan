@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Action } from '@core/models/models';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-arc-actions',
@@ -17,8 +18,10 @@ import { Action } from '@core/models/models';
           [style.animation-delay]="i * 40 + 'ms'"
           (click)="toggle(action)">
           <span class="action-label">
-            {{ action.nameFr }}
-            <small>{{ action.nameAr }}</small>
+            {{ lang.actionName(action) }}
+            @if (lang.currentLang() !== 'ar') {
+              <small>{{ action.nameAr }}</small>
+            }
           </span>
           <span class="checkbox">
             @if (action.checked) { <i class="ri-check-line"></i> }
@@ -39,8 +42,10 @@ import { Action } from '@core/models/models';
             @if (action.checked) { <i class="ri-check-line"></i> }
           </span>
           <span class="action-label">
-            {{ action.nameFr }}
-            <small>{{ action.nameAr }}</small>
+            {{ lang.actionName(action) }}
+            @if (lang.currentLang() !== 'ar') {
+              <small>{{ action.nameAr }}</small>
+            }
           </span>
         </div>
       }
@@ -52,8 +57,8 @@ import { Action } from '@core/models/models';
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 900px;
-      height: 430px;
+      width: 950px;
+      height: 470px;
     }
 
     .arc-item {
@@ -140,9 +145,11 @@ export class ArcActionsComponent {
   @Input() badActions: Action[] = [];
   @Output() actionToggled = new EventEmitter<{ action: Action; checked: boolean }>();
 
-  private centerX = 450;
-  private centerY = 420;
-  private radius = 380;
+  readonly lang = inject(LanguageService);
+
+  private centerX = 475;
+  private centerY = 450;
+  private radius = 400;
 
   getBadX(i: number): number {
     const angle = this.getBadAngle(i);
@@ -166,15 +173,15 @@ export class ArcActionsComponent {
 
   private getBadAngle(i: number): number {
     const count = Math.max(this.badActions.length - 1, 1);
-    const start = Math.PI;
-    const end = Math.PI * 0.54;
+    const start = Math.PI * 1.05;   // 189° — slightly past horizontal
+    const end = Math.PI * 0.45;     // 81° — higher up
     return start + (i / count) * (end - start);
   }
 
   private getGoodAngle(i: number): number {
     const count = Math.max(this.goodActions.length - 1, 1);
-    const start = 0;
-    const end = Math.PI * 0.46;
+    const start = -Math.PI * 0.05;  // -9° — slightly past horizontal
+    const end = Math.PI * 0.55;     // 99° — higher up
     return start + (i / count) * (end - start);
   }
 

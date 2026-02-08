@@ -22,9 +22,9 @@ public class AiAdviceService {
                 .register(meterRegistry);
     }
 
-    public AiAdviceDTO generateAdvice(BalanceDTO balance) {
+    public AiAdviceDTO generateAdvice(BalanceDTO balance, String lang) {
         return aiResponseTimer.record(() -> {
-            String prompt = buildPrompt(balance);
+            String prompt = buildPrompt(balance, lang);
 
             try {
                 String response = chatClient.prompt()
@@ -35,38 +35,60 @@ public class AiAdviceService {
                 return parseResponse(response);
             } catch (Exception e) {
                 log.error("Error calling OpenAI API: {}", e.getMessage());
-                return AiAdviceDTO.builder()
-                        .advice("Continuez vos bonnes actions et repentez-vous des mauvaises.")
-                        .encouragement("اللهم أعنا على ذكرك وشكرك وحسن عبادتك")
-                        .hadithReference("Le Prophète ﷺ a dit : « Les actions ne valent que par les intentions. »")
-                        .build();
+                return getFallback(lang);
             }
         });
     }
 
-    private String buildPrompt(BalanceDTO balance) {
+    private String buildPrompt(BalanceDTO balance, String lang) {
+        String langInstruction = switch (lang) {
+            case "en" -> "Give your advice in English";
+            case "ar" -> "أعطِ نصيحتك باللغة العربية (Give your advice in Arabic)";
+            default -> "Donne ton conseil en français";
+        };
+
         return String.format("""
             Tu es un conseiller islamique bienveillant. Voici le bilan des actions du jour :
             - Bonnes actions (حسنات) : %d (poids: %d)
             - Mauvaises actions (سيئات) : %d (poids: %d)
             - Verdict : %s
-            
-            Donne un conseil court et encourageant (3-4 phrases max) en français, 
+
+            %s.
+            Donne un conseil court et encourageant (3-4 phrases max),
             une invocation en arabe, et une référence de hadith pertinente.
-            
+
             Réponds en JSON avec les clés: advice, encouragement, hadithReference
             """,
                 balance.getGoodCount(), balance.getGoodWeight(),
                 balance.getBadCount(), balance.getBadWeight(),
-                balance.getVerdict()
+                balance.getVerdict(),
+                langInstruction
         );
     }
 
+    private AiAdviceDTO getFallback(String lang) {
+        return switch (lang) {
+            case "en" -> AiAdviceDTO.builder()
+                    .advice("Continue your good deeds and repent for the bad ones.")
+                    .encouragement("اللهم أعنا على ذكرك وشكرك وحسن عبادتك")
+                    .hadithReference("The Prophet ﷺ said: 'Actions are judged by intentions.'")
+                    .build();
+            case "ar" -> AiAdviceDTO.builder()
+                    .advice("واصل أعمالك الصالحة وتب عن السيئات.")
+                    .encouragement("اللهم أعنا على ذكرك وشكرك وحسن عبادتك")
+                    .hadithReference("قال النبي ﷺ: إنما الأعمال بالنيات.")
+                    .build();
+            default -> AiAdviceDTO.builder()
+                    .advice("Continuez vos bonnes actions et repentez-vous des mauvaises.")
+                    .encouragement("اللهم أعنا على ذكرك وشكرك وحسن عبادتك")
+                    .hadithReference("Le Prophète ﷺ a dit : « Les actions ne valent que par les intentions. »")
+                    .build();
+        };
+    }
+
     private AiAdviceDTO parseResponse(String response) {
-        // Simple parsing - in production, use proper JSON parsing
         try {
             String cleaned = response.replaceAll("```json|```", "").trim();
-            // Basic extraction
             var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             return mapper.readValue(cleaned, AiAdviceDTO.class);
         } catch (Exception e) {

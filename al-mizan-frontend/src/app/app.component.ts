@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './layout/navbar.component';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-root',
@@ -21,4 +22,6 @@ import { NavbarComponent } from './layout/navbar.component';
     }
   `]
 })
-export class AppComponent {}
+export class AppComponent {
+  private lang = inject(LanguageService);
+}

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-register',
@@ -12,27 +13,27 @@ import { AuthService } from '@core/services/auth.service';
       <div class="auth-card card">
         <div class="auth-header">
           <span class="bismillah">﷽</span>
-          <h2>Inscription</h2>
-          <p class="text-dim">Crée ton compte pour suivre tes actions</p>
+          <h2>{{ lang.t('register.title') }}</h2>
+          <p class="text-dim">{{ lang.t('register.subtitle') }}</p>
         </div>
 
         <form (ngSubmit)="onRegister()" class="auth-form">
           <div class="form-group">
-            <label for="username">Nom d'utilisateur</label>
+            <label for="username">{{ lang.t('register.username') }}</label>
             <input id="username" type="text" [(ngModel)]="username" name="username"
-                   placeholder="Choisis un pseudo" required autofocus>
+                   [placeholder]="lang.t('register.usernamePlaceholder')" required autofocus>
           </div>
 
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">{{ lang.t('register.email') }}</label>
             <input id="email" type="email" [(ngModel)]="email" name="email"
-                   placeholder="ton.email@exemple.com" required>
+                   [placeholder]="lang.t('register.emailPlaceholder')" required>
           </div>
 
           <div class="form-group">
-            <label for="password">Mot de passe</label>
+            <label for="password">{{ lang.t('register.password') }}</label>
             <input id="password" type="password" [(ngModel)]="password" name="password"
-                   placeholder="Minimum 6 caractères" required>
+                   [placeholder]="lang.t('register.passwordPlaceholder')" required>
           </div>
 
           @if (error()) {
@@ -41,16 +42,16 @@ import { AuthService } from '@core/services/auth.service';
 
           <button type="submit" class="btn btn-primary full-width" [disabled]="loading()">
             @if (loading()) {
-              <i class="ri-loader-4-line spin"></i> Inscription...
+              <i class="ri-loader-4-line spin"></i> {{ lang.t('register.loading') }}
             } @else {
-              <i class="ri-user-add-line"></i> Créer mon compte
+              <i class="ri-user-add-line"></i> {{ lang.t('register.submit') }}
             }
           </button>
         </form>
 
         <p class="auth-footer">
-          Déjà un compte ?
-          <a routerLink="/auth/login">Se connecter</a>
+          {{ lang.t('register.hasAccount') }}
+          <a routerLink="/auth/login">{{ lang.t('register.login') }}</a>
         </p>
       </div>
     </div>
@@ -105,6 +106,7 @@ import { AuthService } from '@core/services/auth.service';
 export class RegisterComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  readonly lang = inject(LanguageService);
 
   username = '';
   email = '';
@@ -127,7 +129,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.error || 'Erreur lors de l\'inscription');
+        this.error.set(err.error?.error || this.lang.t('register.error'));
       }
     });
   }

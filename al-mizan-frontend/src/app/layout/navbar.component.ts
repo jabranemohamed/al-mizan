@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { LanguageService } from '@core/i18n/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -18,25 +19,35 @@ import { AuthService } from '@core/services/auth.service';
           <div class="nav-links">
             <a routerLink="/balance" routerLinkActive="active">
               <i class="ri-scales-3-line"></i>
-              <span>Balance</span>
+              <span>{{ lang.t('nav.balance') }}</span>
             </a>
             <a routerLink="/history" routerLinkActive="active">
               <i class="ri-calendar-line"></i>
-              <span>Historique</span>
+              <span>{{ lang.t('nav.history') }}</span>
             </a>
             <a routerLink="/advice" routerLinkActive="active">
               <i class="ri-sparkling-2-line"></i>
-              <span>Conseil IA</span>
+              <span>{{ lang.t('nav.advice') }}</span>
             </a>
           </div>
-
-          <div class="nav-user">
-            <span class="username">{{ auth.currentUser()?.username }}</span>
-            <button class="btn-logout" (click)="auth.logout()">
-              <i class="ri-logout-box-r-line"></i>
-            </button>
-          </div>
         }
+
+        <div class="nav-right">
+          <div class="lang-switcher">
+            <button [class.active]="lang.currentLang() === 'fr'" (click)="lang.setLang('fr')">FR</button>
+            <button [class.active]="lang.currentLang() === 'en'" (click)="lang.setLang('en')">EN</button>
+            <button [class.active]="lang.currentLang() === 'ar'" (click)="lang.setLang('ar')">عر</button>
+          </div>
+
+          @if (auth.isAuthenticated()) {
+            <div class="nav-user">
+              <span class="username">{{ auth.currentUser()?.username }}</span>
+              <button class="btn-logout" (click)="auth.logout()">
+                <i class="ri-logout-box-r-line"></i>
+              </button>
+            </div>
+          }
+        </div>
       </div>
     </nav>
   `,
@@ -112,6 +123,36 @@ import { AuthService } from '@core/services/auth.service';
       }
     }
 
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-switcher {
+      display: flex;
+      gap: 4px;
+
+      button {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-dim);
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s;
+
+        &.active {
+          background: rgba(212, 168, 83, 0.15);
+          border-color: var(--gold);
+          color: var(--gold);
+        }
+
+        &:hover { color: var(--text); }
+      }
+    }
+
     .nav-user {
       display: flex;
       align-items: center;
@@ -151,4 +192,5 @@ import { AuthService } from '@core/services/auth.service';
 })
 export class NavbarComponent {
   readonly auth = inject(AuthService);
+  readonly lang = inject(LanguageService);
 }
