@@ -1,10 +1,6 @@
 # ============================================
 # Al-Mizan — Render.com Blueprint
-# Deploy: Backend (Spring Boot) + PostgreSQL
 # ============================================
-# 1. Push ce repo sur GitHub
-# 2. render.com → New → Blueprint → Connecte le repo
-# 3. Render crée tout automatiquement
 
 databases:
   - name: mizan-db
@@ -25,10 +21,26 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: render
-      - key: DATABASE_URL
+      - key: DB_HOST
         fromDatabase:
           name: mizan-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: mizan-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: mizan-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: mizan-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: mizan-db
+          property: password
       - key: JWT_SECRET
         generateValue: true
       - key: OPENAI_API_KEY
@@ -36,4 +48,4 @@ services:
       - key: JAVA_TOOL_OPTIONS
         value: "-Xmx384m -Xms128m"
       - key: APP_CORS_ALLOWED_ORIGINS
-        sync: false  # Ex: https://al-mizan.vercel.app
+        sync: false
