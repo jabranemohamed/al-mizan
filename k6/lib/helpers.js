@@ -3,8 +3,39 @@
 // ============================================
 
 import http from 'k6/http';
-import { check, fail } from 'k6';
+import { check } from 'k6';
 import { BASE_URL } from './config.js';
+
+// ---- Setup helpers ----
+
+const POOL_SIZE = 5;
+const PASSWORD = 'K6test_2025!';
+
+/**
+ * Registers a pool of users during k6 setup phase.
+ * Returns an array of { token, username }.
+ */
+export function setupUsers(count) {
+  const n = count || POOL_SIZE;
+  const users = [];
+  for (let i = 0; i < n; i++) {
+    const user = registerUser(i, 0);
+    if (user) {
+      users.push(user);
+    }
+  }
+  if (users.length === 0) {
+    console.error('setupUsers: no users could be registered!');
+  }
+  return users;
+}
+
+/**
+ * Picks a random user from the pool.
+ */
+export function pickRandomUser(usersPool) {
+  return usersPool[Math.floor(Math.random() * usersPool.length)];
+}
 
 // ---- Auth helpers ----
 
@@ -17,7 +48,7 @@ export function registerUser(vuId, iter) {
   const payload = JSON.stringify({
     username,
     email: `${username}@k6test.com`,
-    password: 'K6test_2025!',
+    password: PASSWORD,
   });
 
   const res = http.post(`${BASE_URL}/api/auth/register`, payload, {
