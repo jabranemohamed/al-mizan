@@ -63,12 +63,6 @@ import { ArcActionsComponent } from './arc-actions.component';
         />
       </div>
 
-      <!-- Reset -->
-      <div class="actions-bar">
-        <button class="btn btn-outline" (click)="reload()">
-          <i class="ri-refresh-line"></i> {{ lang.t('balance.reload') }}
-        </button>
-      </div>
     </div>
   `,
   styles: [`
@@ -164,11 +158,6 @@ import { ArcActionsComponent } from './arc-actions.component';
       max-width: 1000px;
       margin: 0 auto;
       min-height: 650px;
-    }
-
-    .actions-bar {
-      text-align: center;
-      margin-top: 16px;
     }
 
     @media (max-width: 640px) {

@@ -17,15 +17,11 @@ import { LanguageService } from '@core/i18n/language.service';
           [style.top.px]="getBadY(i)"
           [style.animation-delay]="i * 40 + 'ms'"
           (click)="toggle(action)">
-          <span class="action-label">
-            {{ lang.actionName(action) }}
-            @if (lang.currentLang() !== 'ar') {
-              <small>{{ action.nameAr }}</small>
-            }
-          </span>
+          <span class="action-icon">{{ action.icon }}</span>
           <span class="checkbox">
             @if (action.checked) { <i class="ri-check-line"></i> }
           </span>
+          <span class="tooltip">{{ lang.actionName(action) }}</span>
         </div>
       }
 
@@ -41,12 +37,8 @@ import { LanguageService } from '@core/i18n/language.service';
           <span class="checkbox">
             @if (action.checked) { <i class="ri-check-line"></i> }
           </span>
-          <span class="action-label">
-            {{ lang.actionName(action) }}
-            @if (lang.currentLang() !== 'ar') {
-              <small>{{ action.nameAr }}</small>
-            }
-          </span>
+          <span class="action-icon">{{ action.icon }}</span>
+          <span class="tooltip">{{ lang.actionName(action) }}</span>
         </div>
       }
     </div>
@@ -57,27 +49,38 @@ import { LanguageService } from '@core/i18n/language.service';
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 950px;
-      height: 470px;
+      width: 900px;
+      height: 430px;
     }
 
     .arc-item {
       position: absolute;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       cursor: pointer;
       transition: all 0.3s ease;
-      white-space: nowrap;
       user-select: none;
       animation: fadeIn 0.4s ease both;
 
-      &:hover { transform: scale(1.07); }
+      &:hover {
+        transform: scale(1.15);
+        .tooltip {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+      }
+    }
+
+    .action-icon {
+      font-size: 1.1rem;
+      line-height: 1;
     }
 
     .checkbox {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       border: 2px solid rgba(255, 255, 255, 0.2);
       display: flex;
@@ -85,7 +88,7 @@ import { LanguageService } from '@core/i18n/language.service';
       justify-content: center;
       flex-shrink: 0;
       transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      font-size: 12px;
+      font-size: 11px;
       color: white;
     }
 
@@ -104,24 +107,27 @@ import { LanguageService } from '@core/i18n/language.service';
       box-shadow: 0 0 12px var(--red-glow);
     }
 
-    .action-label {
-      font-size: 0.78rem;
-      font-weight: 400;
-      color: var(--text-dim);
-      transition: color 0.3s;
-      line-height: 1.2;
-      display: flex;
-      flex-direction: column;
-
-      small {
-        opacity: 0.5;
-        font-size: 0.65rem;
-      }
+    .arc-item.checked .action-icon {
+      filter: brightness(1.3);
     }
 
-    .arc-item.checked .action-label {
+    .tooltip {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(10, 14, 26, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: var(--text);
-      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      z-index: 10;
     }
 
     .arc-item.bad { transform-origin: right center; }
@@ -147,9 +153,9 @@ export class ArcActionsComponent {
 
   readonly lang = inject(LanguageService);
 
-  private centerX = 475;
-  private centerY = 450;
-  private radius = 400;
+  private centerX = 450;
+  private centerY = 420;
+  private radius = 380;
 
   getBadX(i: number): number {
     const angle = this.getBadAngle(i);
@@ -173,15 +179,15 @@ export class ArcActionsComponent {
 
   private getBadAngle(i: number): number {
     const count = Math.max(this.badActions.length - 1, 1);
-    const start = Math.PI * 1.05;   // 189° — slightly past horizontal
-    const end = Math.PI * 0.45;     // 81° — higher up
+    const start = Math.PI;
+    const end = Math.PI * 0.54;
     return start + (i / count) * (end - start);
   }
 
   private getGoodAngle(i: number): number {
     const count = Math.max(this.goodActions.length - 1, 1);
-    const start = -Math.PI * 0.05;  // -9° — slightly past horizontal
-    const end = Math.PI * 0.55;     // 99° — higher up
+    const start = 0;
+    const end = Math.PI * 0.46;
     return start + (i / count) * (end - start);
   }
 
