@@ -32,7 +32,7 @@ import { Component, Input, computed, ChangeDetectionStrategy } from '@angular/co
 
         <!-- Base / Pillar -->
         <polygon points="300,270 400,270 375,220 325,220" fill="url(#goldGrad)" opacity="0.9"/>
-        <rect x="340" y="100" width="20" height="120" rx="4" fill="url(#goldGrad)" opacity="0.85"/>
+        <rect x="340" y="62" width="20" height="158" rx="4" fill="url(#goldGrad)" opacity="0.85"/>
 
         <!-- Pivot -->
         <circle cx="350" cy="50" r="14" fill="url(#goldGrad)" filter="url(#glowGold)"/>

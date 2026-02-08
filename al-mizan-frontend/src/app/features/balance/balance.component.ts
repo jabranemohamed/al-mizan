@@ -157,7 +157,7 @@ import { ArcActionsComponent } from './arc-actions.component';
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
-      min-height: 650px;
+      min-height: 560px;
     }
 
     @media (max-width: 640px) {
