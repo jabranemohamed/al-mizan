@@ -1,0 +1,36 @@
+# Java
+*.class
+*.jar
+*.war
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Node
+node_modules/
+dist/
+.angular/
+
+# Vercel
+.vercel/
+
+# K6 results
+k6/results/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+*.env.local
+
+# Logs
+*.log
+logs/

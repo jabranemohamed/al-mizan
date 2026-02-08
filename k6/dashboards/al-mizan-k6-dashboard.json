@@ -1,0 +1,227 @@
+{
+  "annotations": { "list": [] },
+  "description": "Al-Mizan — K6 Load Testing Dashboard",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "🔥 Vue d'ensemble",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "title": "Virtual Users actifs",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#d4a853" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2, "pointSize": 4 }
+        }
+      },
+      "targets": [
+        {
+          "expr": "k6_vus",
+          "legendFormat": "VUs"
+        }
+      ]
+    },
+    {
+      "title": "Requests/s (débit)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#2dd4a0" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2 },
+          "unit": "reqps"
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(k6_http_reqs_total[30s])",
+          "legendFormat": "req/s"
+        }
+      ]
+    },
+    {
+      "title": "Taux d'erreur HTTP",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#ef6b6b" },
+          "custom": { "fillOpacity": 20, "lineWidth": 2 },
+          "unit": "percentunit",
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 0.05, "color": "yellow" },
+              { "value": 0.15, "color": "red" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(k6_http_req_failed_total[30s]) / rate(k6_http_reqs_total[30s])",
+          "legendFormat": "error rate"
+        }
+      ]
+    },
+    {
+      "title": "⏱ Latences",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "collapsed": false
+    },
+    {
+      "title": "Temps de réponse — P50 / P90 / P95 / P99",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 10, "w": 16, "x": 0, "y": 10 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "lineWidth": 2, "fillOpacity": 5 }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "p50" }, "properties": [{ "id": "color", "value": { "fixedColor": "#2dd4a0", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "p90" }, "properties": [{ "id": "color", "value": { "fixedColor": "#d4a853", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "p95" }, "properties": [{ "id": "color", "value": { "fixedColor": "#f59e0b", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "p99" }, "properties": [{ "id": "color", "value": { "fixedColor": "#ef6b6b", "mode": "fixed" } }] }
+        ]
+      },
+      "targets": [
+        { "expr": "k6_http_req_duration_p50", "legendFormat": "p50" },
+        { "expr": "k6_http_req_duration_p90", "legendFormat": "p90" },
+        { "expr": "k6_http_req_duration_p95", "legendFormat": "p95" },
+        { "expr": "k6_http_req_duration_p99", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "title": "Latence par endpoint",
+      "type": "table",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 10, "w": 8, "x": 16, "y": 10 },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" }
+      },
+      "targets": [
+        {
+          "expr": "k6_http_req_duration_p95{name!=\"\"}",
+          "legendFormat": "{{name}}",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "name": "Endpoint", "Value": "P95 (ms)" } } }
+      ]
+    },
+    {
+      "title": "⚖️ Al-Mizan — Métriques métier",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 20 },
+      "collapsed": false
+    },
+    {
+      "title": "Actions cochées (bonnes vs mauvaises)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 21 },
+      "fieldConfig": {
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "good" }, "properties": [{ "id": "color", "value": { "fixedColor": "#2dd4a0", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "bad" },  "properties": [{ "id": "color", "value": { "fixedColor": "#ef6b6b", "mode": "fixed" } }] }
+        ]
+      },
+      "targets": [
+        { "expr": "rate(mizan_actions_good_total[1m])", "legendFormat": "good" },
+        { "expr": "rate(mizan_actions_bad_total[1m])", "legendFormat": "bad" }
+      ]
+    },
+    {
+      "title": "Temps de réponse IA (OpenAI)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 21 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "fixed", "fixedColor": "#a78bfa" },
+          "custom": { "fillOpacity": 15, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        { "expr": "rate(mizan_ai_response_time_seconds_sum[1m]) / rate(mizan_ai_response_time_seconds_count[1m])", "legendFormat": "avg AI response" },
+        { "expr": "histogram_quantile(0.95, rate(mizan_ai_response_time_seconds_bucket[1m]))", "legendFormat": "p95 AI response" }
+      ]
+    },
+    {
+      "title": "🔐 Authentification",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 29 },
+      "collapsed": false
+    },
+    {
+      "title": "Latence Auth — Register vs Login",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 30 },
+      "fieldConfig": {
+        "defaults": { "unit": "ms", "custom": { "lineWidth": 2 } },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "register" }, "properties": [{ "id": "color", "value": { "fixedColor": "#f59e0b", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "login" },    "properties": [{ "id": "color", "value": { "fixedColor": "#2dd4a0", "mode": "fixed" } }] }
+        ]
+      },
+      "targets": [
+        { "expr": "k6_http_req_duration_p95{name=~\".*register.*\"}", "legendFormat": "register" },
+        { "expr": "k6_http_req_duration_p95{name=~\".*login.*\"}",    "legendFormat": "login" }
+      ]
+    },
+    {
+      "title": "Checks — Taux de succès",
+      "type": "gauge",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 30 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0, "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "red" },
+              { "value": 0.9, "color": "yellow" },
+              { "value": 0.95, "color": "green" }
+            ]
+          }
+        }
+      },
+      "targets": [
+        { "expr": "k6_checks_rate", "legendFormat": "check pass rate" }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["k6", "al-mizan", "performance"],
+  "templating": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "⚖️ Al-Mizan — K6 Performance Dashboard",
+  "uid": "al-mizan-k6",
+  "version": 1
+}

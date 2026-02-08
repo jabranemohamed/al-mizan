@@ -1,0 +1,142 @@
+spring:
+  application:
+    name: al-mizan
+
+  # Default profile: H2 for local dev
+  datasource:
+    url: jdbc:h2:mem:mizandb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Spring AI - OpenAI
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:your-api-key-here}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
+
+# JWT
+app:
+  jwt:
+    secret: ${JWT_SECRET:al-mizan-secret-key-change-in-production-minimum-32-characters}
+    expiration-ms: 86400000  # 24h
+
+# Actuator + Prometheus
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: al-mizan
+  tracing:
+    sampling:
+      probability: 1.0
+
+# Server
+server:
+  port: 8080
+
+# Logging
+logging:
+  level:
+    com.mizan.almizan: DEBUG
+    org.springframework.security: WARN
+
+---
+# Production profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mizan}
+    username: ${SPRING_DATASOURCE_USERNAME:mizan}
+    password: ${SPRING_DATASOURCE_PASSWORD:mizan}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 20000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    com.mizan.almizan: INFO
+
+---
+# Render.com profile (free tier optimizations)
+spring:
+  config:
+    activate:
+      on-profile: render
+
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 300000
+      max-lifetime: 900000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: public
+
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: ${PORT:10000}
+  shutdown: graceful
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
+
+logging:
+  level:
+    com.mizan.almizan: INFO
+    org.hibernate.SQL: WARN
